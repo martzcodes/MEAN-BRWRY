@@ -51,12 +51,83 @@ var allowablePins = [11,12,13,15,16,18];
 var gpioPins = [{pin:11,value:1,date:initdate,safeValue:1,mode:"write"}];
 var tempSensors = [{sensor:"28-000003cb5b7c",calibration:0,value:-1,lastValue:-1,date:initdate,active:1}];
 
-
+//Moving into DB section
+/*
 gpioPins.forEach(function(gpioPin){
 	gpio.setup(gpioPin.pin, gpio.DIR_OUT, initPin(gpioPin));
 })
 checkSensors();
 setInterval(function(){checkTemp()}, 2000);
+*/
+
+////////////////////////////
+//DB stuff
+
+// Connect to MongoDB using Mongoose
+var mongoose = require('mongoose');
+
+var Sensor, Equipment;
+
+mongoose.connect('mongodb://localhost/brwry-dev');
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function callback () {
+	console.log('Connected to mongodb://localhost/brwry-dev')
+
+	// Get Sensor schema and model
+	//var SensorSchema = require('../models/Sensor.js').sensorSchema;
+	//var SensorSchema = require('./models/Sensor.js').sensorSchema;
+	var SensorSchema = mongoose.Schema({
+		name: String, //Name
+		type: String, //Normally temperature (don't want to prevent using other types of senors), not used
+		address: String, //addressed used to get readings
+		location: String, //description of where this is placed in the brewing process
+		calibration: Number, //Calibration number (if the sensor is off by a set amount)
+		value: Number, //current reading
+		date: Date, //time of current reading
+		lastValue: Number, //last reading
+		active: Number, //Is it being used?
+		linked: Array  //Is it linked to anything else (PID control of something)
+	});
+	Sensor = mongoose.model('Sensor', SensorSchema);
+
+	Sensor.remove({}, function(err) { 
+		console.log('Sensor model removed (dev purposes)') 
+	});
+
+	// Get Equipment schema and model
+	//var EquipmentSchema = require('../models/Equipment.js').equipmentSchema;
+	//var EquipmentSchema = require('./models/Equipment.js').equipmentSchema;
+	var EquipmentSchema = mongoose.Schema({
+		name: String,
+		type: String,  //Pump,Heating Element, Valve, etc
+		address: String, //GPIO Pin
+		location: String, //Description of where it is in the process
+		modes: Array, //(On/Off/PID)
+		value: Number, //1 or 0 (on or off)
+		state: Number, //what mode it's in (0 is off, 1 is on, anything else is a target for PID)
+		date: Date, //last command change
+		pidtime: Number, //seconds between on/off if PID controlled
+		laststate: Date,  //used to determine seconds between on/off if PID controlled
+		safeValue: Number,
+		linked: Array
+	});
+	Equipment = mongoose.model('Equipment', EquipmentSchema);
+
+	Equipment.remove({}, function(err) { 
+		console.log('Equipment model removed (dev purposes)') 
+	});
+
+	gpioPins.forEach(function(gpioPin){
+		gpio.setup(gpioPin.pin, gpio.DIR_OUT, initPin(gpioPin));
+	})
+	//checkSensors(Sensor);
+	checkSensors();
+	//setInterval(function(){checkTemp()}, 2000);
+});
+
+//End DB stuff
+////////////////////////////
 
 io.sockets.on('connection', function(socket){
 	checkSensors();
@@ -161,8 +232,30 @@ function initPin(gpioPin) {
 };
 
 function checkSensors(){
+//function checkSensors(Sensor) {
 	sense.sensors(function(err, ids) {
 		ids.forEach(function(sensor){
+			Sensor.find({address:sensor},function (err, sensors) {
+				if (err) {
+					console.log("error: ",error)
+				}
+				if (sensors.length == 0) {
+					Sensor.create({
+						name: 'unnamed', //Name
+						type: 'Temperature', //Normally temperature (don't want to prevent using other types of senors), not used
+						address: sensor, //addressed used to get readings
+						location: 'No Where', //description of where this is placed in the brewing process
+						calibration: 0, //Calibration number (if the sensor is off by a set amount)
+						value: -1, //current reading
+						date: Date(), //time of current reading
+						lastValue: -1, //last reading
+						active: 1, //Is it being used?
+						linked: []  //Is it linked to anything else (PID control of something)
+					});
+					console.log('Created sensor',sensor,'!')
+				}
+			})
+			/*
 			var sensorStored = 0;
 			tempSensors.forEach(function(tempSensor){
 				if (tempSensor.sensor == sensor) {
@@ -172,12 +265,16 @@ function checkSensors(){
 			if (sensorStored == 0) {
 				tempSensors.push({sensor:sensor,calibration:0,value:-1,lastValue:-1,date:'',active:1})
 			}
+			*/
 		});
 	});
 	setTimeout(function(){
-		io.sockets.emit('checksensors', {'checksensors': tempSensors});
+		//io.sockets.emit('checksensors', {'checksensors': tempSensors});
+		Sensor.find({},function (err, sensors) {
+			console.log('Mongo Sensors: ',sensors)
+		});
 	},1000)
-	checkTemp();
+	//checkTemp();
 }
 
 function checkTemp(){
@@ -206,9 +303,8 @@ process.on('exit', function (){
 process.on('SIGINT', function () {
 	console.log('Got SIGINT.  Exiting...');
 	gpioPins.forEach(function(gpioPin){
-		//for common anode LEDs only, otherwise you'd set them to 0 (off)
-		gpioPin.value = 1;
-		gpio.write(gpioPin.pin, 1);
+		gpioPin.value = gpioPin.safeValue;
+		gpio.write(gpioPin.pin, gpioPin.safeValue);
 	})
 	gpio.destroy(function() {
   		console.log('All pins unexported');
