@@ -1,13 +1,13 @@
 <div class="well well-lg">
 <h1>Temp Sensor Setup:</h1>
 	<ul>
-		<li ng-repeat="temperature in checksensors">{{temperature.sensor}} Active: <input type="checkbox" ng-model="temperature.active" ng-checked="temperature.active" ng-click="updateSensor(temperature)"> Calibration: <input type="number" ng-model="temperature.calibration"> <button ng-click="updateSensor(temperature)">Update</button></li>
+		<li ng-repeat="temperature in checksensors">{{temperature.address}} Active: <input type="checkbox" ng-model="temperature.active" ng-checked="temperature.active" ng-click="updateSensor(temperature)"> Calibration: <input type="number" ng-model="temperature.calibration"> <button ng-click="updateSensor(temperature)">Update</button></li>
 	</ul>
 </div>
 <div class="well well-lg">
 <h1>Temperature Data:</h1>
 	<ul>
-		<li ng-repeat="temperature in temperatures" ng-show="temperature.active">{{temperature.value}} on sensor {{temperature.sensor}} at {{temperature.date}} (previously: {{temperature.lastValue}})</li>
+		<li ng-repeat="temperature in temperatures" ng-show="temperature.active">{{temperature.value}} on sensor {{temperature.address}} at {{temperature.date}} (previously: {{temperature.lastValue}})</li>
 	</ul>
 </div>
 <div class="well well-lg">

@@ -121,9 +121,8 @@ db.once('open', function callback () {
 	gpioPins.forEach(function(gpioPin){
 		gpio.setup(gpioPin.pin, gpio.DIR_OUT, initPin(gpioPin));
 	})
-	//checkSensors(Sensor);
 	checkSensors();
-	//setInterval(function(){checkTemp()}, 2000);
+	setInterval(function(){checkTemp()}, 2000);
 });
 
 //End DB stuff
@@ -208,13 +207,24 @@ io.sockets.on('connection', function(socket){
 		socket.emit('gpiopinout',{'gpiopinout':gpioPins});
 	})
 	socket.on('send:updateSensor', function(sensor) {
-		tempSensors.forEach(function(tempSensor){
-			if (sensor.sensor == tempSensor.sensor) {
-				tempSensor.active = sensor.active;
-				tempSensor.calibration = sensor.calibration;
-			}
-		})
-		socket.emit('checksensors', {'checksensors': tempSensors});
+		var activeUpdate;
+		if (sensor.active == false) {
+			activeUpdate = 0;
+		} else {
+			activeUpdate = 1;
+		}
+		console.log('activeUpdate:',activeUpdate)
+		Sensor.update({address:sensor.address},{active:activeUpdate,
+			calibration:sensor.calibration},function (err, numberAffected, raw) {
+				if (err) console.log('Error:',err);
+				console.log('The number of updated documents was %d', numberAffected);
+				console.log('The raw response from Mongo was ', raw);
+		});
+//		setTimeout(function(){
+			Sensor.find({},function (err, sensors) {
+				socket.emit('checksensors', {'checksensors': sensors});
+			});
+//		},1000)
 		checkTemp();
 	});
 });
@@ -232,7 +242,6 @@ function initPin(gpioPin) {
 };
 
 function checkSensors(){
-//function checkSensors(Sensor) {
 	sense.sensors(function(err, ids) {
 		ids.forEach(function(sensor){
 			Sensor.find({address:sensor},function (err, sensors) {
@@ -255,41 +264,34 @@ function checkSensors(){
 					console.log('Created sensor',sensor,'!')
 				}
 			})
-			/*
-			var sensorStored = 0;
-			tempSensors.forEach(function(tempSensor){
-				if (tempSensor.sensor == sensor) {
-					sensorStored = 1;
-				}
-			});
-			if (sensorStored == 0) {
-				tempSensors.push({sensor:sensor,calibration:0,value:-1,lastValue:-1,date:'',active:1})
-			}
-			*/
 		});
 	});
-	setTimeout(function(){
-		//io.sockets.emit('checksensors', {'checksensors': tempSensors});
+//	setTimeout(function(){
 		Sensor.find({},function (err, sensors) {
 			console.log('Mongo Sensors: ',sensors)
+			io.sockets.emit('checksensors', {'checksensors': sensors});
 		});
-	},1000)
-	//checkTemp();
+//	},1000)
 }
 
 function checkTemp(){
-	tempSensors.forEach(function(tempSensor) {
-		sense.temperature(tempSensor.sensor, function(err, value) {
-			tempSensor.lastValue = tempSensor.value;
-			tempSensor.value = value + tempSensor.calibration;
-			tempSensor.date = Date();
-		  	//console.log('Current temperature is', value, 'for sensor', sensor, 'at',Date());
-		});                
-	})
-	setTimeout(function(){
-		io.sockets.emit('tempout', {'tempout': tempSensors});
-		return tempSensors;
-	},1000)
+	Sensor.find({},function(err, sensors) {
+		sensors.forEach(function(tempSensor) {
+			sense.temperature(tempSensor.address, function(err, value) {
+				var newReading = value+tempSensor.calibration;
+				Sensor.update({address:tempSensor.address},{lastValue:tempSensor.value,
+					value:newReading,date:Date()},function (err, numberAffected, raw) {
+  					if (err) console.log('Error:',err);
+//  					console.log('The raw response from Mongo was ', raw);
+				});
+			});                
+		})
+	});
+//	setTimeout(function(){
+		Sensor.find({},function(err,sensors){
+			io.sockets.emit('tempout', {'tempout': sensors});
+		})
+//	},1000)
 }
 
 server.listen(app.get('theport'),app.get('theip'), function() {
