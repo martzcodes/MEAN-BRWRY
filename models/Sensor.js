@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 //Sensor Database (Address, Calibration, Name, Linked Items (Equipment)), etc
-var sensorSchema = mongoose.Schema({
+var SensorSchema = mongoose.Schema({
   name: String, //Name
   type: String, //Normally temperature (don't want to prevent using other types of senors), not used
   address: String, //addressed used to get readings
@@ -13,3 +13,5 @@ var sensorSchema = mongoose.Schema({
   active: Number, //Is it being used?
   linked: Array  //Is it linked to anything else (PID control of something)
 });
+var Sensor = mongoose.model('Sensor', SensorSchema);
+exports.Sensor = Sensor;
