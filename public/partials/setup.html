@@ -1,0 +1,14 @@
+<div class="well well-lg">
+<h1>Temp Sensor Setup:</h1>
+	<ul>
+		<li ng-repeat="temperature in checksensors">{{temperature.address}} Active: <input type="checkbox" ng-model="temperature.active" ng-true-value="1" ng-false-value="0" ng-checked="temperature.active" ng-click="updateSensor(temperature)"> Calibration: <input type="number" ng-model="temperature.calibration"> <button ng-click="updateSensor(temperature)">Update</button></li>
+	</ul>
+</div>
+<div class="well well-lg">
+	<h1>GPIO Pin Setup:</h1>
+	<p>Allowable Pins are: {{allowablepins}}</p>
+	<ul>
+		<li ng-repeat="gpioPin in gpioPins"><button ng-click="updateGPIO(gpioPin)">Update</button> GPIO Pin: {{gpioPin.address}}  State after Update: <input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.value" ng-checked="gpioPin.value"> Safe Value: <input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.safeValue" ng-checked="gpioPin.safeValue">  Last updated: {{gpioPin.date}} <button ng-click="removeGPIO(gpioPin)">Remove</button></li>
+		<li ng-model="newPin"><button ng-click="updateGPIO(newPin)">Add</button> GPIO Pin: <input type="number" ng-model="newPin.address"> State after Update: <input type="checkbox" ng-model="newPin.value" ng-checked="newPin.value"> Safe Value: <input type="checkbox" ng-model="newPin.safeValue" ng-checked="newPin.safeValue"></li>
+	</ul>
+</div>

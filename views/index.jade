@@ -16,7 +16,19 @@ html(lang='en', ng-app='brwry')
 		script(src='/js/controllers.js')
 	body(ng-controller="BrewCtrl")
 		nav.navbar.navbar-inverse.navbar-fixed-top(role='navigation')
-			div.navbar-header
-				a.navbar-brand(href='#/') BRWRY
+			div.container
+				div.navbar-header
+					a.navbar-brand(href='#/') BRWRY
+				div.collapse.navbar-collapse
+					ul.nav.navbar-nav
+						li
+							a(href='#/') Home
+						li
+							a(href='#/setup') Setup
+					ul.nav.navbar-nav.navbar-right
+						li(ng-repeat="temperature in temperatures" ng-show="temperature.active")
+							a(href='#/') {{temperature.value}} &deg;C
+						li(ng-repeat="gpioPin in gpioPins | orderBy:gpioPin.address")
+							a {{gpioPin.address}} - {{gpioPin.state}}
 		div.container
 			div(ng-view)

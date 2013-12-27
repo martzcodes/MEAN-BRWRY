@@ -1,17 +1,40 @@
 // Controller for Main Page
 
 function BrewCtrl($scope,socket) {
-	var tempout = "";
-	//$scope.brwry = "asdf";
-	//$scope.brwry.tempout = "asdf";
+  var tempout = "";
 	
   socket.on('tempout', function (data) {
     $scope.temperatures = data.tempout;
   });
 
-  socket.on('allowablepins', function (data) {
-  	$scope.allowablepins = data.allowablepins;
-  })
+  socket.on('checksensors', function (data) {
+    $scope.checksensors = data.checksensors;
+  });
+
+  socket.on('gpiopinout', function (data) {
+  	$scope.gpioPins = data.gpiopinout;
+  });
+/*
+  socket.on('send:toggleGPIO', function(data){
+  	//console.log('toggled from send:toggle');
+  });
+
+  socket.on('send:updateGPIO', function(data){
+  	//console.log('toggled from send:toggle');
+  });
+*/
+  $scope.toggleGPIO = function(gpioPin) {
+  	//console.log('toggled in ctrler',gpioPin);
+  	socket.emit('send:toggleGPIO', gpioPin);
+  }
+}
+
+// Controller for Setup
+
+function BrewSetupCtrl($scope, socket){
+  socket.on('tempout', function (data) {
+    $scope.temperatures = data.tempout;
+  });
 
   socket.on('checksensors', function (data) {
     $scope.checksensors = data.checksensors;
@@ -21,19 +44,9 @@ function BrewCtrl($scope,socket) {
   	$scope.gpioPins = data.gpiopinout;
   });
 
-  socket.on('send:toggleGPIO', function(data){
-  	//console.log('toggled from send:toggle');
-  });
-
-  socket.on('send:updateGPIO', function(data){
-  	//console.log('toggled from send:toggle');
-  });
-
-  $scope.toggleGPIO = function(gpioPin) {
-  	//console.log('toggled in ctrler',gpioPin);
-  	socket.emit('send:toggleGPIO', gpioPin);
+  $scope.updateSensor = function(sensor) {
+  	socket.emit('send:updateSensor', sensor);
   }
-
   $scope.updateGPIO = function(gpioPin) {
   	//console.log('toggled in ctrler',gpioPin);
   	socket.emit('send:updateGPIO', gpioPin);
@@ -42,28 +55,8 @@ function BrewCtrl($scope,socket) {
   	//console.log('toggled in ctrler',gpioPin);
   	socket.emit('send:removeGPIO', gpioPin);
   }
-
-  $scope.updateSensor = function(sensor) {
-  	socket.emit('send:updateSensor', sensor);
-  }
-
-	//$scope.brwry.temperature = temperatureout;
 }
-
-// Controller for Setup
 /*
-function BrewSetupCtrl($scope, socket){
-	socket.on('setup', function(data) {
-		$scope.sensors = data.sensors;
-		$scope.equipment = data.equipment;
-	});
-
-	$scope.update = function() {
-		var updateObj = { sensors: sensors, equipment: equipment };
-		socket.emit('update:setup', updateObj);
-	};
-}
-
 // Controller for Brew List
 function RecipeListCtrl($scope,Recipe) {
 	$scope.recipes = Recipe.query();

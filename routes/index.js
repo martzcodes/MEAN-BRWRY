@@ -16,6 +16,10 @@ exports.index = function(req, res) {
 	res.render('index');
 };
 
+exports.setup = function(req, res) {
+	res.render('setup');
+};
+
 mongoose.connect('mongodb://localhost/brwry-dev');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -117,14 +121,7 @@ exports.connect = function(socket) {
 	})
 */
 	socket.on('send:updateSensor', function(sensor) {
-		var activeUpdate;
-		if (sensor.active == false) {
-			activeUpdate = 0;
-		} else {
-			activeUpdate = 1;
-		}
-		console.log('activeUpdate:',activeUpdate)
-		Sensor.update({address:sensor.address},{active:activeUpdate,
+		Sensor.update({address:sensor.address},{active:sensor.active,
 			calibration:sensor.calibration},function (err, numberAffected, raw) {
 				if (err) console.log('Error:',err);
 				console.log('The number of updated documents was %d', numberAffected);
@@ -135,7 +132,7 @@ exports.connect = function(socket) {
 				socket.emit('checksensors', {'checksensors': checksensors});
 			});
 //		},1000)
-		checkTemp(sio,Sensor);
+		sensors.checkTemp(sio,Sensor);
 	});
 }
 

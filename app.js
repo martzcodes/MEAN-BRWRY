@@ -34,7 +34,8 @@ routes.socketio(io);
 app.get('/', routes.index);
 
 //MongoDB API Routes
-/*app.get('/setup', routes.setup);
+app.get('/setup', routes.setup);
+/*
 app.post('/setup', routes.setup);
 app.get('/recipe', routes.recipelist);
 app.post('/recipe', routes.recipe); //Create a brew
