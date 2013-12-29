@@ -72,6 +72,23 @@ exports.togglePin = function(socket,Equipment,gpioPin) {
 	});
 }
 
+exports.toggleAllPin = function(socket,Equipment) {
+	//Turn all pins off
+	Equipment.find({},function (err, equipment){
+		equipment.forEach(function(gpioPin){
+			Equipment.update({address:gpioPin.address},{value:gpioPin.safeValue,
+				state:gpioPin.safeValue,date:Date(),lastState:Date()},function (err, numberAffected, raw) {
+					if (err) console.log('Error:',err);
+					gpio.write(gpioPin.address,gpioPin.safeValue,function(err){
+						console.log('Error:',err);
+					});
+					//console.log('The raw response from Mongo was ', raw);
+			});
+		})
+		pinStates(socket,Equipment);
+	})
+}
+
 exports.updatePin = function(socket,Equipment,gpioPin) {
 	//Check if it's in the database
 	Equipment.findOne({address:gpioPin.address},function (err, equipment) {
@@ -132,6 +149,42 @@ exports.updatePin = function(socket,Equipment,gpioPin) {
 					//console.log('The raw response from Mongo was ', raw);
 			});
 		}
+	})
+}
+
+exports.updateAllPin = function(socket,Equipment,gpioPins) {
+	//Check if it's in the database
+	gpioPins.forEach(function(gpioPin){
+		Equipment.findOne({address:gpioPin.address},function (err, equipment) {
+			var newValue;
+			var safeValue;
+			console.log('gpioPin:',gpioPin)
+			if (gpioPin.value == true) {
+				newValue = 1;
+			} else if (gpioPin.value == false) {
+				newValue = 0;
+			} else {
+				newValue = gpioPin.value;
+			}
+			if (gpioPin.safeValue == true) {
+				safeValue = 1;
+			} else if (gpioPin.safeValue == false) {
+				safeValue = 0;
+			} else {
+				safeValue = gpioPin.safeValue;
+			}
+			//equipment exists
+			newValue = gpioPin.value;
+			Equipment.update({address:gpioPin.address},{value:newValue,safeValue:safeValue,
+				state:newValue,date:Date(),lastState:Date()},function (err, numberAffected, raw) {
+					if (err) console.log('Error:',err);
+					gpio.write(gpioPin.address,newValue,function(err){
+						console.log('Error:',err);
+					});
+					pinStates(socket,Equipment);
+					//console.log('The raw response from Mongo was ', raw);
+			});
+		})
 	})
 }
 

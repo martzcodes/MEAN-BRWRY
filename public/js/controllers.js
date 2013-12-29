@@ -1,38 +1,39 @@
 // Controller for Main Page
 
 function BrewCtrl($scope,socket) {
-  var tempout = "";
-	
-  socket.on('tempout', function (data) {
-    $scope.temperatures = data.tempout;
-    var tempObj = {time:Date.parse(data.tempout[0].date),value:data.tempout[0].value,name:data.tempout[0].name};
-    if (!$scope.temperaturehistory) {
-    	$scope.temperaturehistory = [tempObj];
-    } else {
-    	$scope.temperaturehistory.push(tempObj);
-    }
-  });
+	var tempout = "";
 
-  socket.on('checksensors', function (data) {
-    $scope.checksensors = data.checksensors;
-  });
+	socket.on('tempout', function (data) {
+	$scope.temperatures = data.tempout;
+	var tempObj = {time:Date.parse(data.tempout[0].date),value:data.tempout[0].value,name:data.tempout[0].name};
+	if (!$scope.temperaturehistory) {
+		$scope.temperaturehistory = [tempObj];
+	} else {
+		$scope.temperaturehistory.push(tempObj);
+	}
+	});
 
-  socket.on('gpiopinout', function (data) {
-  	$scope.gpioPins = data.gpiopinout;
-  });
-/*
-  socket.on('send:toggleGPIO', function(data){
-  	//console.log('toggled from send:toggle');
-  });
+	socket.on('checksensors', function (data) {
+		$scope.checksensors = data.checksensors;
+	});
 
-  socket.on('send:updateGPIO', function(data){
-  	//console.log('toggled from send:toggle');
-  });
-*/
-  $scope.toggleGPIO = function(gpioPin) {
-  	//console.log('toggled in ctrler',gpioPin);
-  	socket.emit('send:toggleGPIO', gpioPin);
-  }
+	socket.on('allowablepins', function (data) {
+		$scope.allowablepins = data.allowablepins;
+	});
+
+	socket.on('gpiopinout', function (data) {
+		$scope.gpioPins = data.gpiopinout;
+	});
+
+	$scope.toggleGPIO = function(gpioPin) {
+	  	//console.log('toggled in ctrler',gpioPin);
+	  	socket.emit('send:toggleGPIO', gpioPin);
+	}
+
+	$scope.toggleAllGPIO = function() {
+	  	//console.log('toggled in ctrler',gpioPin);
+	  	socket.emit('send:toggleAllGPIO');
+	}
 }
 
 // Controller for Setup
@@ -56,6 +57,10 @@ function BrewSetupCtrl($scope, socket){
   $scope.updateGPIO = function(gpioPin) {
   	//console.log('toggled in ctrler',gpioPin);
   	socket.emit('send:updateGPIO', gpioPin);
+  }
+  $scope.updateAllGPIO = function(gpioPins) {
+  	//console.log('toggled in ctrler',gpioPin);
+  	socket.emit('send:updateAllGPIO', gpioPins);
   }
   $scope.removeGPIO = function(gpioPin) {
   	//console.log('toggled in ctrler',gpioPin);

@@ -30,8 +30,10 @@ html(lang='en', ng-app='brwry')
 					ul.nav.navbar-nav.navbar-right
 						li(ng-repeat="temperature in temperatures" ng-show="temperature.active")
 							a(href='#/') {{temperature.value}} &deg;C
+						li
+							a(href='#/' ng-click="toggleAllGPIO()") All Off!
 						li(ng-repeat="gpioPin in gpioPins | orderBy:gpioPin.address")
-							a {{gpioPin.address}} - 
+							a(href='#/' ng-click="toggleGPIO(gpioPin)") {{gpioPin.address}} - 
 								span(ng-show="gpioPin.state") Off
 								span(ng-hide="gpioPin.state") On
 		div.container
