@@ -54,6 +54,9 @@ function BrewSetupCtrl($scope, socket){
   $scope.updateSensor = function(sensor) {
   	socket.emit('send:updateSensor', sensor);
   }
+  $scope.updateSensors = function(sensors) {
+  	socket.emit('send:updateSensors', sensors);
+  }
   $scope.updateGPIO = function(gpioPin) {
   	//console.log('toggled in ctrler',gpioPin);
   	socket.emit('send:updateGPIO', gpioPin);

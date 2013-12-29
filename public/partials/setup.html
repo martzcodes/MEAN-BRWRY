@@ -1,15 +1,83 @@
 <div class="well well-lg">
 <h1>Temp Sensor Setup:</h1>
-	<ul>
-		<li ng-repeat="temperature in checksensors">{{temperature.address}} Active: <input type="checkbox" ng-model="temperature.active" ng-true-value="1" ng-false-value="0" ng-checked="temperature.active" ng-click="updateSensor(temperature)"> Calibration: <input type="number" ng-model="temperature.calibration"> <button ng-click="updateSensor(temperature)">Update</button></li>
-	</ul>
+	<table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Value</th>
+            <th>Enabled?</th>
+            <th>Calibration</th>
+            <th>Last Changed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="temperature in checksensors">
+            <td>{{temperature.address}}</td>
+            <td><input type="text" ng-model="temperature.name"></td>
+            <td><input type="text" ng-model="temperature.location"></td>
+            <td>{{temperature.value}}</td>
+            <td><input type="checkbox" ng-model="temperature.active" ng-true-value="1" ng-false-value="0" ng-checked="temperature.active" ng-click="updateSensor(temperature)"></td>
+            <td><input type="number" ng-model="temperature.calibration"></td>
+            <td>{{temperature.date}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button ng-click="updateSensors(checksensors)">Update All Sensors</button>
 </div>
 <div class="well well-lg">
 	<h1>GPIO Pin Setup:</h1>
-	<p>Allowable Pins are: {{allowablepins}}</p>
 	<button ng-click="updateAllGPIO(gpioPins)">Update All</button>
-	<ul>
-		<li ng-repeat="gpioPin in gpioPins"><button ng-click="updateGPIO(gpioPin)">Update</button> GPIO Pin: {{gpioPin.address}}  State after Update: <input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.value" ng-checked="gpioPin.value"> Safe Value: <input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.safeValue" ng-checked="gpioPin.safeValue">  Last updated: {{gpioPin.date}} <button ng-click="removeGPIO(gpioPin)">Remove</button></li>
-		<li ng-model="newPin"><button ng-click="updateGPIO(newPin)">Add</button> GPIO Pin: <input type="number" ng-model="newPin.address"> State after Update: <input type="checkbox" ng-model="newPin.value" ng-checked="newPin.value"> Safe Value: <input type="checkbox" ng-model="newPin.safeValue" ng-checked="newPin.safeValue"></li>
-	</ul>
+	<table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Pin</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Safe Value</th>
+            <th>Last Changed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="gpioPin in gpioPins">
+            <td>{{gpioPin.address}}</td>
+            <td><input type="text" ng-model="gpioPin.name"></td>
+            <td><input type="text" ng-model="gpioPin.type"></td>
+            <td><input type="text" ng-model="newPin.location"></td>
+            <td><input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.value" ng-checked="gpioPin.value"></td>
+            <td><input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="gpioPin.safeValue" ng-checked="gpioPin.safeValue"></td>
+            <td>{{gpioPin.date}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button ng-click="updateAllGPIO(gpioPins)">Update All</button>
+      <div ng-model = "newPin">
+      <p>Allowable Pins are: {{allowablepins}}</p>
+	<table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>Pin</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Safe Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="number" ng-model="newPin.address"></td>
+            <td><input type="text" ng-model="newPin.name"></td>
+            <td><input type="text" ng-model="newPin.type"></td>
+            <td><input type="text" ng-model="newPin.location"></td>
+            <td><input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="newPin.value" ng-checked="newPin.value"></td>
+            <td><input type="checkbox" ng-true-value="1" ng-false-value="0" ng-model="newPin.safeValue" ng-checked="newPin.safeValue"></td>
+          </tr>
+        </tbody>
+      </table>
+      <button ng-click="updateGPIO(newPin)">Add</button>
+      </div>
 </div>
