@@ -1,0 +1,25 @@
+- [x] Install MEAN on Raspberry Pi
+- [x] Read DS18B20 Temperatures on Raspberry Pi using Node.js
+- [x] Read/Write Raspberry Pi GPIO ports using Node
+- [x] Host MEAN Based Site
+- [x] Display Temperatures on MEAN site (single page)
+- [x] GPIO Port Interface on MEAN site (single page)
+- [x] Display Status (updated 12/23/2013, been done for  a while though)
+- [x] Buttons for On/Off (updated 12/23/2013!!! couldn’t get stuff from client side to server side)
+- [x] Make a Configuration Section
+- [x] Configuration section for temperature sensors (checkbox for active/inactive, input for calibration)
+- [x] Config section for gpio pins (manually add/remove pins, mode (read/write, not needed at the moment since I don’t have any GPIO sensors), safe value (what is off?), initial value)
+- [ ] At some point I’ll need to cross-link temp sensors and gpio pins (for PID control of things)
+- [x] Split up page into their appropriate pages (Home/Recipes/History/Setup/etc) (updated 12/26/2013)
+- [x] Graph Data (real-time) (was after “Store Data in MongoDB”) (updated 12/28/2013)
+- [ ] Store Data in MongoDB
+- [ ] Make a recipes section (was before “Store Data in MongoDB”, I’m not sure why).
+- [ ] Display Previously stored graphs/data
+- [ ] Implement the control bits (PID)
+- [ ] Implement “push button brewing” (Recipe has a list of steps/times, raspberry pi follows directions)
+- [ ] Redesign BRWRY.com to be node-based
+- [ ] Add login/logout type stuff to Raspberry Pi site
+- [ ] Add in social features
+- [ ] Integrate Raspberry Pi brwry into BRWRY.com website (probably as “read” only)
+- [ ] Make a network setup on first run (i.e. download new card, it sets up a point to point wifi network allowing input of SSID/password stuff.
+- [ ] Make card image for sharing
