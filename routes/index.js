@@ -80,34 +80,10 @@ exports.connect = function(socket) {
 	});
 
 	socket.on('send:updateSensor', function(sensor) {
-		Sensor.update({address:sensor.address},{active:sensor.active,
-			calibration:sensor.calibration},function (err, numberAffected, raw) {
-				if (err) console.log('Error:',err);
-				console.log('The number of updated documents was %d', numberAffected);
-				console.log('The raw response from Mongo was ', raw);
-		});
-//		setTimeout(function(){
-			Sensor.find({},function (err, checksensors) {
-				socket.emit('checksensors', {'checksensors': checksensors});
-			});
-//		},1000)
-		sensors.checkTemp(sio,Sensor);
+		sensor.updateSensor(sio,Sensor,sensor);
 	});
 	socket.on('send:updateSensors', function(tempsensors) {
-		tempsensors.forEach(function(sensor){
-			Sensor.update({address:sensor.address},{active:sensor.active, name:sensor.name, location:sensor.location,
-				calibration:sensor.calibration},function (err, numberAffected, raw) {
-					if (err) console.log('Error:',err);
-					console.log('The number of updated documents was %d', numberAffected);
-					console.log('The raw response from Mongo was ', raw);
-			});
-		})
-	//		setTimeout(function(){
-			Sensor.find({},function (err, checksensors) {
-				socket.emit('checksensors', {'checksensors': checksensors});
-			});
-//		},1000)
-		sensors.checkTemp(sio,Sensor);
+		sensor.updateSensors(sio,Sensor,tempsensors);
 	});
 }
 

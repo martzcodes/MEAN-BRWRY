@@ -2,8 +2,6 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
-//var sense = require('ds18b20');
-//var gpio = require('rpi-gpio');
 
 var app = express();
 var server = http.createServer(app);

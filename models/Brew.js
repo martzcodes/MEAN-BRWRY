@@ -8,5 +8,8 @@ var recipeSchema = new mongoose.Schema({
 	equipment: Array,
 	steps: Array,
 	status: String,
-	previous: Array
+	previous: Array,
+	starttime: Date,
+	dataminute: Array, //fixed size, 600 points (600 minutes, 10 hours)
+	datasecond: Array, //fixed size, 600 points (600 seconds, 10 minutes)
 });

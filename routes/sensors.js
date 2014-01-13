@@ -1,9 +1,10 @@
 var sense = require('ds18b20');
+//var sense = require('./fakeds18b20.js') //when testing on something other than a pi
 
 //var initdate = '';
 //var tempSensors = [{sensor:"28-000003cb5b7c",calibration:0,value:-1,lastValue:-1,date:initdate,active:1}];
 
-exports.checkSensors =function(socket,Sensor){
+function checkSensors(socket,Sensor){
 	sense.sensors(function(err, ids) {
 		ids.forEach(function(sensor){
 			Sensor.find({address:sensor},function (err, sensors) {
@@ -36,7 +37,11 @@ exports.checkSensors =function(socket,Sensor){
 //	},1000)
 }
 
-exports.checkTemp = function(socket,Sensor){
+exports.checkSensors = function(socket,Sensor) {
+	checkSensors(socket,Sensor);
+}
+
+function checkTemp(socket,Sensor) {
 	Sensor.find({},function(err, sensors) {
 		sensors.forEach(function(tempSensor) {
 			sense.temperature(tempSensor.address, function(err, value) {
@@ -44,6 +49,7 @@ exports.checkTemp = function(socket,Sensor){
 				Sensor.update({address:tempSensor.address},{lastValue:tempSensor.value,
 					value:newReading,date:Date()},function (err, numberAffected, raw) {
   					if (err) console.log('Error:',err);
+}
 //  					console.log('The raw response from Mongo was ', raw);
 				});
 			});                
@@ -56,4 +62,42 @@ exports.checkTemp = function(socket,Sensor){
 		})
 		//return sensors;
 //	},1000)
+}
+
+
+exports.checkTemp = function(socket,Sensor) {
+	checkTemp(socket,Sensor);
+}
+
+
+exports.updateSensor = function(socket,Sensor,sensor) {
+	Sensor.update({address:sensor.address},{active:sensor.active,
+		calibration:sensor.calibration},function (err, numberAffected, raw) {
+			if (err) console.log('Error:',err);
+			console.log('The number of updated documents was %d', numberAffected);
+			console.log('The raw response from Mongo was ', raw);
+	});
+//		setTimeout(function(){
+		Sensor.find({},function (err, checksensors) {
+			socket.emit('checksensors', {'checksensors': checksensors});
+		});
+//		},1000)
+	checkTemp(socket,Sensor);
+}
+
+exports.updateSensors = function(socket,Sensor,sensors) {
+	sensors.forEach(function(sensor){
+			Sensor.update({address:sensor.address},{active:sensor.active, name:sensor.name, location:sensor.location,
+				calibration:sensor.calibration},function (err, numberAffected, raw) {
+					if (err) console.log('Error:',err);
+					console.log('The number of updated documents was %d', numberAffected);
+					console.log('The raw response from Mongo was ', raw);
+			});
+		})
+	//		setTimeout(function(){
+			Sensor.find({},function (err, checksensors) {
+				socket.emit('checksensors', {'checksensors': checksensors});
+			});
+//		},1000)
+		checkTemp(socket,Sensor);
 }
