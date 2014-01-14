@@ -1,5 +1,5 @@
-var gpio = require('rpi-gpio');
-//var gpio = require('./fakerpi-gpio.js') //when testing on something other than a pi
+//var gpio = require('rpi-gpio');
+var gpio = require('./fakerpi-gpio.js') //when testing on something other than a pi
 
 var allowablePins = [11,12,13,15,16,18];
 

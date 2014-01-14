@@ -9,8 +9,7 @@ var util   = require('util'),
 
 // Constructor
 function Gpio() {
-    EventEmitter.call(this);
-    this.reset();
+    
 }
 util.inherits(Gpio, EventEmitter);
 
