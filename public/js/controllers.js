@@ -3,14 +3,23 @@
 function BrewCtrl($scope,socket) {
 	var tempout = "";
 
+	socket.on('system', function (data) {
+		$scope.system = {
+			systemname:data.systemname,
+			brewer:data.brewer,
+			currentbrew:data.currentbrew,
+			state:data.state
+		}
+	});
+
 	socket.on('tempout', function (data) {
-	$scope.temperatures = data.tempout;
-	var tempObj = {time:Date.parse(data.tempout[0].date),value:data.tempout[0].value,name:data.tempout[0].name};
-	if (!$scope.temperaturehistory) {
-		$scope.temperaturehistory = [tempObj];
-	} else {
-		$scope.temperaturehistory.push(tempObj);
-	}
+		$scope.temperatures = data.tempout;
+		var tempObj = {time:Date.parse(data.tempout[0].date),value:data.tempout[0].value,name:data.tempout[0].name};
+		if (!$scope.temperaturehistory) {
+			$scope.temperaturehistory = [tempObj];
+		} else {
+			$scope.temperaturehistory.push(tempObj);
+		}
 	});
 
 	socket.on('checksensors', function (data) {
@@ -34,6 +43,17 @@ function BrewCtrl($scope,socket) {
 	  	//console.log('toggled in ctrler',gpioPin);
 	  	socket.emit('send:toggleAllGPIO');
 	}
+
+	$scope.updateSystem = function(system) {
+  		socket.emit('send:updateSystem', system);
+  	}
+
+  	$scope.newBrew = function(system) {
+  		socket.emit('send:newBrew', system);
+  	}
+  	$scope.stopBrew = function() {
+  		socket.emit('send:stopBrew');
+  	}
 }
 
 // Controller for Setup

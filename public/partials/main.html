@@ -1,5 +1,15 @@
+<h1>{{system.brewer}}'s {{system.systemname}}</h1>
+<div ng-show="system.state">
+	<p>Currently Brewing: {{system.currentbrew}}</p>
+	<button ng-click="stopBrew()">Stop the brew.</button>
+</div>
+<div ng-hide="system.state">
+	<p>Brew Name: <input type="text" ng-model="system.currentbrew"> </p>
+	<button ng-click="newBrew(system)">Start a new brew.</button>
+</div>
+
 <div class="well well-lg">
-<h1>Temperature Data:</h1>
+<h2>Temperature Data:</h2>
 	<ul>
 		<li ng-repeat="temperature in temperatures" ng-show="temperature.active">{{temperature.value}} on sensor {{temperature.address}} at {{temperature.date}} (previously: {{temperature.lastValue}})</li>
 	</ul>
@@ -10,7 +20,7 @@
 </div>
 
 <div class="well well-lg">
-<h1>GPIO Pins Master Control:</h1>
+<h2>GPIO Pins Master Control:</h2>
 	<ul>
 		<li ng-repeat="gpioPin in gpioPins | orderBy:gpioPin.address"><button ng-click="toggleGPIO(gpioPin)">Toggle</button> GPIO Pin {{gpioPin.address}} has a value of {{gpioPin.value}}. Last changed: {{gpioPin.date}}</li>
 	</ul>

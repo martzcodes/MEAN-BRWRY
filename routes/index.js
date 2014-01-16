@@ -1,11 +1,13 @@
 var mongoose = require('mongoose');
 var sensors = require('./sensors.js');
 var equipment = require('./equipment.js');
+var system = require('./system.js');
 
+var model = {system:require('../models/System.js')};
 var modelsensor = require('../models/Sensor.js');
 var modelequipment = require('../models/Equipment.js');
 
-var Sensor, Equipment, sio;
+var Sensor, Equipment, System, sio;
 
 exports.socketio = function(io){
 	sio = io.sockets;
@@ -25,6 +27,13 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function callback () {
 	console.log('Connected to mongodb://localhost/brwry-dev')
+
+	System = model.system.System;
+/*
+	System.remove({}, function(err) { 
+		console.log('System model removed (dev purposes)') 
+	});
+*/
 
 	Sensor = modelsensor.Sensor;
 	Equipment = modelequipment.Equipment;
@@ -48,16 +57,26 @@ db.once('open', function callback () {
 });
 
 exports.connect = function(socket) {
+	system.loadSystem(sio,System);
+
 	sensors.checkSensors(sio,Sensor);
 	
 	equipment.pinStates(sio,Equipment);
 	
 	equipment.allowablePins(sio);
 
+	socket.on('send:updateSystem',function(data){
+		system.updateSystem(sio,System,data);
+	});
+	socket.on('send:newBrew',function(data){
+		system.newBrew(sio,System,data);
+	});
+	socket.on('send:stopBrew',function(){
+		system.stopBrew(sio,System);
+	});
+
 	socket.on('send:toggleGPIO',function(gpioPin){
-		//console.log('gpioPin',gpioPin);
 		equipment.togglePin(sio,Equipment,gpioPin);
-		//equipment.pinStates(sio,Equipment);
 	});
 
 	socket.on('send:toggleAllGPIO',function(){
@@ -71,12 +90,10 @@ exports.connect = function(socket) {
 
 	socket.on('send:updateAllGPIO', function(gpioPin){
 		equipment.updateAllPin(sio,Equipment,gpioPin);
-		//equipment.pinStates(sio,Equipment);
 	});
 
 	socket.on('send:removeGPIO',function(gpioPin){
 		equipment.removePin(sio,Equipment,gpioPin);
-		//equipment.pinStates(sio,Equipment);
 	});
 
 	socket.on('send:updateSensor', function(sensor) {
