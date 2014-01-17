@@ -9,8 +9,8 @@ var brewSchema = new mongoose.Schema({
 	steps: Array,
 	status: String,
 	previous: Array,
-	temperatureminute: Array, //"fixed" size, 600 points (600 minutes, 10 hours)
-	temperaturesecond: Array, //"fixed" size, 600 points (600 seconds, 10 minutes)
+	temperatureminute: Array,
+	temperaturesecond: Array,
 	dataequipment: Array
 });
 var Brew = mongoose.model('Brew', brewSchema);

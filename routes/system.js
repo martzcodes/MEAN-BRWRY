@@ -112,7 +112,6 @@ exports.stopBrew = function(socket,System,data) {
 }
 
 exports.loadSystem = function(socket,System) {
-
 	System.findOne({}, function(err, system) {
 		if (err) {
 			console.log("error: ",error)
@@ -123,5 +122,4 @@ exports.loadSystem = function(socket,System) {
 			emitSystem(socket,system);
 		}
 	});
-
 }

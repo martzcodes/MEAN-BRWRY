@@ -2,12 +2,16 @@ var mongoose = require('mongoose');
 var sensors = require('./sensors.js');
 var equipment = require('./equipment.js');
 var system = require('./system.js');
+var brew = require('./brew.js');
 
-var model = {system:require('../models/System.js')};
-var modelsensor = require('../models/Sensor.js');
-var modelequipment = require('../models/Equipment.js');
+var model = {
+	system:require('../models/System.js'),
+	sensor:require('../models/Sensor.js'),
+	equipment:require('../models/Equipment.js'),
+	brew:require('../models/Brew.js'),
+};
 
-var Sensor, Equipment, System, sio;
+var Sensor, Equipment, System, Brew, sio;
 
 exports.socketio = function(io){
 	sio = io.sockets;
@@ -35,8 +39,9 @@ db.once('open', function callback () {
 	});
 */
 
-	Sensor = modelsensor.Sensor;
-	Equipment = modelequipment.Equipment;
+	Sensor = model.sensor.Sensor;
+	Equipment = model.equipment.Equipment;
+	Brew = model.brew.Brew;
 
 	Sensor.remove({}, function(err) { 
 		console.log('Sensor model removed (dev purposes)') 
@@ -54,6 +59,9 @@ db.once('open', function callback () {
 	setTimeout(function(){
 		equipment.initPins(sio,Equipment);
 	},1000);
+
+	brew.initBrew(Brew,Equipment,Sensor,System);
+
 });
 
 exports.connect = function(socket) {
@@ -70,9 +78,11 @@ exports.connect = function(socket) {
 	});
 	socket.on('send:newBrew',function(data){
 		system.newBrew(sio,System,data);
+		brew.startBrew(data);
 	});
 	socket.on('send:stopBrew',function(){
 		system.stopBrew(sio,System);
+		brew.stopBrew();
 	});
 
 	socket.on('send:toggleGPIO',function(gpioPin){
