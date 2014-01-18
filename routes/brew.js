@@ -49,6 +49,12 @@ function brewSecond() {
 		});
 
 		model.brew.findById(currentbrew, function(err, brew) {
+			var popLength = brew.temperaturesecond.length - 120;
+			if (popLength > 0) {
+				for (var i=0;i<popLength;i++) {
+					brew.temperaturesecond.pop(0);
+				}
+			}
 			brew.temperaturesecond.push(sensorObj);
 			brew.save();
 		});
@@ -57,9 +63,27 @@ function brewSecond() {
 
 function brewMinute() {
 	if (currentbrew != '') {
+		var secondData;
+		var sensorObj = {
+			time:Date(),
+			sensors:[]
+		}
+		var minuteData = {};
+		var minuteLength;
 		model.brew.findById(currentbrew, function(err, brew) {
-
-		});
+			secondData = brew.temperaturesecond.slice(-1-60);
+			minuteLength = secondData.length;
+			secondData.forEach(function(second){
+				second.forEach(function(sensor){
+					if(isNaN(minuteData[sensor.address])){
+						minuteData[sensor.address] = sensor.value;
+					} else {
+						minuteData[sensor.address] = minuteData[sensor.address] + sensor.value;
+					}
+				})
+			})
+			//minuteData.forEach
+		})
 	}
 }
 
@@ -150,7 +174,9 @@ exports.initBrew = function(initBrew,initEquipment,initSensor,initSystem) {
 	setInterval(function(){
 		brewSecond();
 	},1000);
-	setInterval(function(){
-		brewMinute();
+	setTimeout(function(){
+		setInterval(function(){
+			brewMinute();
+		},60000);
 	},60000);
 }
