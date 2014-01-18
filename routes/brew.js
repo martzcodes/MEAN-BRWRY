@@ -1,10 +1,11 @@
 var currentbrew = '';
-var Equipment, Sensor, Brew, System;
+var model, control, socket;
+
 
 function initSensors() {
 	if (currentbrew != '') {
-		Sensor.find({}, function(err, sensors) {
-			Brew.findById(currentbrew, function(err, brew) {
+		model.sensor.find({}, function(err, sensors) {
+			model.brew.findById(currentbrew, function(err, brew) {
 				sensors.forEach(function(sensor){
 					brew.sensors.push(sensor);
 				});
@@ -18,8 +19,8 @@ function initSensors() {
 
 function initEquipment() {
 	if (currentbrew != '') {
-		Equipment.find({}, function(err, equipments) {
-			Brew.findById(currentbrew, function(err, brew) {
+		model.equipment.find({}, function(err, equipments) {
+			model.brew.findById(currentbrew, function(err, brew) {
 				equipments.forEach(function(equipment){
 					brew.equipment.push(equipment);
 				});
@@ -31,23 +32,65 @@ function initEquipment() {
 	}
 }
 
-function brewProcess() {
+function brewSecond() {
 	if (currentbrew != '') {
-		System.findOne({}, function(err, system) {
-			
+		var sensorObj = {
+			time:Date(),
+			sensors:[]
+		};
+
+		model.sensor.find({},function(err,sensors){
+			sensors.forEach(function(sensor){
+				sensorObj.sensors.push({
+					address:sensor.address,
+					value:sensor.value
+				})
+			})
+		});
+
+		model.brew.findById(currentbrew, function(err, brew) {
+			brew.temperaturesecond.push(sensorObj);
+			brew.save();
+		});
+	}
+}
+
+function brewMinute() {
+	if (currentbrew != '') {
+		model.brew.findById(currentbrew, function(err, brew) {
+
+		});
+	}
+}
+
+exports.equipmentLog = function(data) {
+	if (currentbrew != '') {
+		var equipmentObj = {
+			time:Date(),
+			equipment:[]
+		}
+		data.forEach(function(equipment){
+			equipmentObj.equipment.push({
+				address:equipment.address,
+				value:equipment.value
+			})
+		})
+		model.brew.findById(currentbrew, function(err, brew) {
+			brew.dataequipment.push(equipmentObj);
+			brew.save();
 		});
 	}
 }
 
 exports.startBrew = function(data) {
-	System.findOne({}, function(err, system) {
+	model.system.findOne({}, function(err, system) {
 		if (err) {
 			console.log("error: ",error)
 		}
 		if (system.currentbrewid != '') {
-			Brew.findByIdAndUpdate(system.currentbrewid,{status:'Active'});
+			model.brew.findByIdAndUpdate(system.currentbrewid,{status:'Active'});
 		} else {
-			Brew.create({
+			model.brew.create({
 				name: data.currentbrew,
 				brewer: data.brewer,
 				brewday: Date(),
@@ -80,30 +123,34 @@ exports.startBrew = function(data) {
 
 exports.stopBrew = function() {
 	if (currentbrew != '') {
-		Brew.findByIdAndUpdate(currentbrew, {state:0},function(err, brew) {
+		model.brew.findByIdAndUpdate(currentbrew, {state:0},function(err, brew) {
 			currentbrew = '';
 		});
 	}
 }
 
 exports.initBrew = function(initBrew,initEquipment,initSensor,initSystem) {
-	Equipment = initEquipment;
-	Sensor = initSensor;
-	Brew = initBrew;
-	System = initSystem;
+	model = {
+		system:initSystem,
+		sensor:initSensor,
+		equipment:initEquipment,
+		brew:initBrew
+	};
 
-	System.findOne({}, function(err, system) {
-		console.log('system',system)
+	model.system.findOne({}, function(err, system) {
 		if (err) {
 			console.log("error: ",error)
 		}
 		if (system.currentbrewid != '') {
 			currentbrew = system.currentbrewid;
-			Brew.findByIdAndUpdate(system.currentbrewid,{status:'Active'});
+			model.brew.findByIdAndUpdate(system.currentbrewid,{status:'Active'});
 		}
 	});
 
 	setInterval(function(){
-		brewProcess();
+		brewSecond();
 	},1000);
+	setInterval(function(){
+		brewMinute();
+	},60000);
 }

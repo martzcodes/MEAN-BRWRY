@@ -67,7 +67,6 @@ exports.checkTemp = function(socket,Sensor) {
 	checkTemp(socket,Sensor);
 }
 
-
 exports.updateSensor = function(socket,Sensor,sensor) {
 	Sensor.update({address:sensor.address},{active:sensor.active,
 		calibration:sensor.calibration},function (err, numberAffected, raw) {

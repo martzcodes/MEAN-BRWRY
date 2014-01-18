@@ -17,6 +17,12 @@ exports.pinStates = function(socket,Equipment) {
 	pinStates(socket,Equipment);
 }
 
+exports.logPins = function(Equipment,brew) {
+	Equipment.find({}, function(err,equipment){
+		brew.equipmentLog(equipment);
+	});	
+}
+
 exports.devPin = function(socket,Equipment) {
 	Equipment.create({
 		name: 'Test Light 1',

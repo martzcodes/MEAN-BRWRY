@@ -87,23 +87,28 @@ exports.connect = function(socket) {
 
 	socket.on('send:toggleGPIO',function(gpioPin){
 		equipment.togglePin(sio,Equipment,gpioPin);
+		equipment.logPins(Equipment,brew);
 	});
 
 	socket.on('send:toggleAllGPIO',function(){
 		//Turn all pins off (emergency off)
 		equipment.toggleAllPin(sio,Equipment);
+		equipment.logPins(Equipment,brew);
 	});
 
 	socket.on('send:updateGPIO', function(gpioPin){
 		equipment.updatePin(sio,Equipment,gpioPin);
+		equipment.logPins(Equipment,brew);
 	});
 
 	socket.on('send:updateAllGPIO', function(gpioPin){
 		equipment.updateAllPin(sio,Equipment,gpioPin);
+		equipment.logPins(Equipment,brew);
 	});
 
 	socket.on('send:removeGPIO',function(gpioPin){
 		equipment.removePin(sio,Equipment,gpioPin);
+		equipment.logPins(Equipment,brew);
 	});
 
 	socket.on('send:updateSensor', function(sensor) {
