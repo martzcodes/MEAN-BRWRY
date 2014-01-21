@@ -36,27 +36,29 @@ function brewSecond() {
 	if (currentbrew != '') {
 		var sensorObj = {
 			time:Date(),
-			sensors:[]
+			//sensors:[]
 		};
+		var skipSensor = 0;
 
 		model.sensor.find({},function(err,sensors){
 			sensors.forEach(function(sensor){
-				sensorObj.sensors.push({
-					address:sensor.address,
-					value:sensor.value
-				})
-			})
-		});
-
-		model.brew.findById(currentbrew, function(err, brew) {
-			var popLength = brew.temperaturesecond.length - 120;
-			if (popLength > 0) {
-				for (var i=0;i<popLength;i++) {
-					brew.temperaturesecond.pop(0);
+				if (sensor.value != '' || sensor.value != null || !isNaN(sensor.value)) {
+					sensorObj[sensor.address] = sensor.value;
+					skipSensor = 1;
 				}
+			})
+			if (skipSensor == 1) { //at least one sensor had data to store
+				model.brew.findById(currentbrew, function(err, brew) {
+					var popLength = brew.temperaturesecond.length - 300;
+					if (popLength > 0) {
+						for (var i=0;i<popLength;i++) {
+							brew.temperaturesecond.pop(0);
+						}
+					}
+					brew.temperaturesecond.push(sensorObj);
+					brew.save();
+				});
 			}
-			brew.temperaturesecond.push(sensorObj);
-			brew.save();
 		});
 	}
 }
@@ -66,23 +68,28 @@ function brewMinute() {
 		var secondData;
 		var sensorObj = {
 			time:Date(),
-			sensors:[]
+			//sensors:[]
 		}
-		var minuteData = {};
-		var minuteLength;
 		model.brew.findById(currentbrew, function(err, brew) {
-			secondData = brew.temperaturesecond.slice(-1-60);
-			minuteLength = secondData.length;
+			secondData = brew.temperaturesecond.slice(-1-9);  //last 10 entries
 			secondData.forEach(function(second){
-				second.forEach(function(sensor){
-					if(isNaN(minuteData[sensor.address])){
-						minuteData[sensor.address] = sensor.value;
-					} else {
-						minuteData[sensor.address] = minuteData[sensor.address] + sensor.value;
+				for (key in second) {
+					if (key != 'time') {
+						if(isNaN(sensorObj[key])){
+							sensorObj[key] = [second[key]];
+						} else {
+							sensorObj[key].push(second[key]);
+						}
 					}
-				})
+				}
 			})
-			//minuteData.forEach
+			for (key in sensorObj) {
+				if (key != 'time') {
+					sensorObj[key] = sensorObj[key].reduce(function(a, b) { return a + b })/sensorObj[key].length;
+				}
+			}
+			brew.temperatureminute.push(sensorObj);
+			brew.save();
 		})
 	}
 }

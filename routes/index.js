@@ -43,6 +43,11 @@ db.once('open', function callback () {
 	Equipment = model.equipment.Equipment;
 	Brew = model.brew.Brew;
 
+/*
+	Brew.remove({}, function(err) { 
+		console.log('Brew model removed (dev purposes)') 
+	});
+*/
 	Sensor.remove({}, function(err) { 
 		console.log('Sensor model removed (dev purposes)') 
 	});
