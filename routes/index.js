@@ -78,6 +78,8 @@ exports.connect = function(socket) {
 	
 	equipment.allowablePins(sio);
 
+	brew.sendData(sio);
+
 	socket.on('send:updateSystem',function(data){
 		system.updateSystem(sio,System,data);
 	});

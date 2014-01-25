@@ -160,6 +160,17 @@ exports.stopBrew = function() {
 	}
 }
 
+exports.sendData = function(socket) {
+	if (currentbrew != '') {
+		model.brew.findById(currentbrew, function(err, brew) {
+			socket.emit('brewdata',{
+				'temperaturesecond':brew.temperaturesecond,
+				'temperatureminute':brew.temperatureminute
+			});
+		});
+	}
+}
+
 exports.initBrew = function(initBrew,initEquipment,initSensor,initSystem) {
 	model = {
 		system:initSystem,

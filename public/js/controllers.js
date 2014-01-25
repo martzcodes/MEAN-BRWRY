@@ -12,6 +12,11 @@ function BrewCtrl($scope,socket) {
 		}
 	});
 
+	socket.on('brewdata', function (data){
+		$scope.temperaturesecond = data.temperaturesecond;
+		$scope.temperatureminute = data.temperatureminute;
+	})
+
 	socket.on('tempout', function (data) {
 		$scope.temperatures = data.tempout;
 		var tempObj = {time:Date.parse(data.tempout[0].date),value:data.tempout[0].value,name:data.tempout[0].name};

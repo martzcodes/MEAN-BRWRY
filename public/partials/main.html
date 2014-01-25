@@ -20,6 +20,13 @@
 </div>
 
 <div class="well well-lg">
+<h2>Temperature Data, raw:</h2>
+	<p>{{temperatureminute}}</p>
+	<p>and...</p>
+	<p>{{temperaturesecond}}</p>
+</div>
+
+<div class="well well-lg">
 <h2>GPIO Pins Master Control:</h2>
 	<ul>
 		<li ng-repeat="gpioPin in gpioPins | orderBy:gpioPin.address"><button ng-click="toggleGPIO(gpioPin)">Toggle</button> GPIO Pin {{gpioPin.address}} has a value of {{gpioPin.value}}. Last changed: {{gpioPin.date}}</li>
